@@ -188,7 +188,8 @@ class ChannelsConfig():
             DOut = np.vstack((DOut, Cout)) if DOut.size else Cout
 
         SortDInds = []
-        for line in DOut[0:-1:2, :]:
+#        for line in DOut[0:-1:2, :]:
+        for line in DOut:
             if True in line:
                 SortDInds.append(np.where(line))
 
