@@ -104,7 +104,7 @@ class ChannelsConfig():
 
         for digc in sorted(doColumns):
             print(digc)
-            DOChannels.append(doColumns[digc])
+            DOChannels.append(doColumns[digc][0])
 #            DOChannels.append(doColumns[digc][0])
 #            DOChannels.append(doColumns[digc][1])
         print(DOChannels)
