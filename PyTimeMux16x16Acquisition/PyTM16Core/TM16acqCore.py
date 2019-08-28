@@ -31,22 +31,22 @@ aiChannels = {'Ch01': ('ai0', 'ai8'),
               }
 
 # Daq card digital connections mapping 'Column name':(VsControl, VdControl)
-doColumns = {'Col01': ('line0', ),
-             'Col02': ('line1', ),
-             'Col03': ('line2', ),
-             'Col04': ('line3', ),
-             'Col05': ('line4', ),
-             'Col06': ('line5', ),
+doColumns = {'Col01': ('line1', ),
+             'Col02': ('line2', ),
+             'Col03': ('line3', ),
+             'Col04': ('line0', ),
+             'Col05': ('line5', ),
+             'Col06': ('line7', ),
              'Col07': ('line6', ),
-             'Col08': ('line7', ),
+             'Col08': ('line4', ),
              'Col09': ('line8', ),
-             'Col10': ('line9', ),
+             'Col10': ('line11', ),
              'Col11': ('line10', ),
-             'Col12': ('line11', ),
+             'Col12': ('line9', ),
              'Col13': ('line12', ),
-             'Col14': ('line13', ),
+             'Col14': ('line15', ),
              'Col15': ('line14', ),
-             'Col16': ('line15', ),
+             'Col16': ('line13', ),
              }
 
 
@@ -197,8 +197,6 @@ class ChannelsConfig():
         self.DigitalOutputs.SetContSignal(Signal=DOut.astype(np.uint8))
 
     def _SortChannels(self, data, SortDict):
-        print('SortChannels')
-        print(data.shape)
         # Sort by aianalog input
         (samps, inch) = data.shape
         aiData = np.zeros((samps, len(SortDict)))
@@ -209,7 +207,6 @@ class ChannelsConfig():
         aiData = aiData.transpose()
         MuxData = np.ndarray(self.OutputShape)
 
-        print('columns')
         nColumns = len(self.DigColumns)
         for indB in range(self.nBlocks):
             startind = indB * self.nSampsCo * nColumns
@@ -220,7 +217,6 @@ class ChannelsConfig():
                 for Inds in self.SortDInds:
                     MuxData[ind, :, indB] = chData[Inds]
                     ind += 1
-
         return aiData, MuxData
 
     def EveryNEventCallBack(self, Data):
