@@ -9,7 +9,7 @@ Created on Wed Mar  6 12:25:45 2019
 from PyQt5 import Qt
 import pyqtgraph.parametertree.parameterTypes as pTypes
 import numpy as np
-import TM16acqCore as CoreMod
+import PyTM16Core.TM16acqCore as CoreMod
 import PyCont.FileModule as FileMod
 
 
@@ -23,7 +23,7 @@ SampSettingConf = ({'title': 'Channels Config',
                                  {'title': 'Acquire AC',
                                   'name': 'AcqAC',
                                   'type': 'bool',
-                                  'value': True},
+                                  'value': False},
                                  {'title': 'Gain DC',
                                   'name': 'DCGain',
                                   'type': 'float',
