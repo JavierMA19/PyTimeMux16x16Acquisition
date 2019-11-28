@@ -30,6 +30,24 @@ aiChannels = {'Ch01': ('ai0', 'ai8'),
               'Ch16': ('ai23', 'ai31'),
               }
 
+#aiChannels = {'Ch09': ('ai0', 'ai8'),
+#              'Ch10': ('ai1', 'ai9'),
+#              'Ch11': ('ai2', 'ai10'),
+#              'Ch12': ('ai3', 'ai11'),
+#              'Ch13': ('ai4', 'ai12'),
+#              'Ch14': ('ai5', 'ai13'),
+#              'Ch15': ('ai6', 'ai14'),
+#              'Ch16': ('ai7', 'ai15'),
+#              'Ch01': ('ai16', 'ai24'),
+#              'Ch02': ('ai17', 'ai25'),
+#              'Ch03': ('ai18', 'ai26'),
+#              'Ch04': ('ai19', 'ai27'),
+#              'Ch05': ('ai20', 'ai28'),
+#              'Ch06': ('ai21', 'ai29'),
+#              'Ch07': ('ai22', 'ai30'),
+#              'Ch08': ('ai23', 'ai31'),
+#              }
+
 # Daq card digital connections mapping 'Column name':(VsControl, VdControl)
 doColumns = {'Col01': ('line1', ),
              'Col02': ('line2', ),
@@ -48,7 +66,23 @@ doColumns = {'Col01': ('line1', ),
              'Col15': ('line14', ),
              'Col16': ('line13', ),
              }
-
+#doColumns = {'Col12': ('line1', ),
+#             'Col11': ('line2', ),
+#             'Col10': ('line3', ),
+#             'Col09': ('line0', ),
+#             'Col16': ('line5', ),
+#             'Col15': ('line7', ),
+#             'Col14': ('line6', ),
+#             'Col13': ('line4', ),
+#             'Col04': ('line8', ),
+#             'Col03': ('line11', ),
+#             'Col02': ('line10', ),
+#             'Col01': ('line9', ),
+#             'Col08': ('line12', ),
+#             'Col07': ('line15', ),
+#             'Col06': ('line14', ),
+#             'Col05': ('line13', ),
+#             }
 
 ##############################################################################
 
@@ -126,6 +160,7 @@ class ChannelsConfig():
     def __init__(self, Channels, DigColumns,
                  AcqDC=True, AcqAC=True,
                  ChVds='ao0', ChVs='ao1',
+#                 ChVds='ao1', ChVs='ao0',   # Compact Board
                  ACGain=1.1e5, DCGain=10e3):
         print('InitChannels')
         self._InitAnalogOutputs(ChVds=ChVds, ChVs=ChVs)
@@ -135,6 +170,7 @@ class ChannelsConfig():
         self.AcqAC = AcqAC
         self.AcqDC = AcqDC
         self.ACGain = ACGain
+        print(self.ACGain, 'ACGAIN')
         self.DCGain = DCGain
         self._InitAnalogInputs()
 
@@ -227,6 +263,7 @@ class ChannelsConfig():
             if self.AcqDC:
                 aiDataDC, MuxDataDC = self._SortChannels(Data,
                                                          self.DCChannelIndex)
+                print('Gains->', self.DCGain, self.ACGain, self.BiasVd)
                 aiDataDC = (aiDataDC-self.BiasVd) / self.DCGain
                 MuxDataDC = (MuxDataDC-self.BiasVd) / self.DCGain
             if self.AcqAC:
