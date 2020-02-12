@@ -106,7 +106,7 @@ class ChannelsConfig():
     DataEveryNEvent = None
     DataDoneEvent = None
 
-    ClearSig = np.zeros((1, len(doColumns)), dtype=np.bool).astype(np.uint8)
+    ClearSig = np.zeros((1, len(MB41[1])), dtype=np.bool).astype(np.uint8)
     ClearSig = np.hstack((ClearSig, ClearSig))
 
     def _InitAnalogInputs(self):
@@ -118,16 +118,16 @@ class ChannelsConfig():
         sortindex = 0
         for ch in self.ChNamesList:
             if self.AcqDC:
-                InChans.append(aiChannels[ch][0])
+                InChans.append(self.aiChannels[ch][0])
                 self.DCChannelIndex[ch] = (index, sortindex)
                 index += 1
-                print(ch, ' DC -->', aiChannels[ch][0])
+                print(ch, ' DC -->', self.aiChannels[ch][0])
                 print('SortIndex ->', self.DCChannelIndex[ch])
             if self.AcqAC:
-                InChans.append(aiChannels[ch][1])
+                InChans.append(self.aiChannels[ch][1])
                 self.ACChannelIndex[ch] = (index, sortindex)
                 index += 1
-                print(ch, ' AC -->', aiChannels[ch][1])
+                print(ch, ' AC -->', self.aiChannels[ch][1])
                 print('SortIndex ->', self.ACChannelIndex[ch])
             sortindex += 1
         print('Input ai', InChans)
@@ -142,11 +142,11 @@ class ChannelsConfig():
         print(self.DigColumns)
         DOChannels = []
 
-        for digc in sorted(doColumns):
+        for digc in sorted(self.doColumns):
             print(digc)
-            DOChannels.append(doColumns[digc][0])
+            DOChannels.append(self.doColumns[digc][0])
 #            DOChannels.append(doColumns[digc][0])
-            DOChannels.append(doColumns[digc][1])
+            DOChannels.append(self.doColumns[digc][1])
         print(DOChannels)
 
 #        DOChannels = []
@@ -176,6 +176,7 @@ class ChannelsConfig():
         self.AcqDC = AcqDC
         self.ACGain = ACGain
         self.DCGain = DCGain
+        print('Board---->', Board)
         if Board == 'MainBoard':
             self.aiChannels = MainBoard[0]
             self.doColumns = MainBoard[1]
@@ -225,7 +226,7 @@ class ChannelsConfig():
         print('SetDigitalOutputs')
         DOut = np.array([], dtype=np.bool)
 
-        for nCol, iCol in zip(range(len(doColumns)), sorted(list(doColumns.keys()))):
+        for nCol, iCol in zip(range(len(self.doColumns)), sorted(list(self.doColumns.keys()))):
             Lout = np.zeros((1, nSampsCo*len(self.DigColumns)), dtype=np.bool)
             for i, n in enumerate(self.DigColumns):
                 if n == iCol:
