@@ -13,7 +13,15 @@ import TM16acqCore as CoreMod
 import PyCont.FileModule as FileMod
 
 
-SampSettingConf = ({'title': 'Channels Config',
+SampSettingConf = ({'title': 'Select PCB',
+                    'name': 'PCB',
+                    'type': 'group',
+                    'childern':({'tittle': 'Selected Board',
+                                 'name': 'Board',
+                                 'type': 'list',
+                                 'values': ['MainBoard',
+                                            'MB4.1', ], },), },
+                   {'title': 'Channels Config',
                     'name': 'ChsConfig',
                     'type': 'group',
                     'children': ({'title': 'Acquire DC',
@@ -64,7 +72,7 @@ SampSettingConf = ({'title': 'Channels Config',
                                                {'name': 'Ch07',
                                                 'tip': 'Ch07',
                                                 'type': 'bool',
-                                                'value': True},
+                                                'value': False},
                                                {'name': 'Ch08',
                                                 'tip': 'Ch08',
                                                 'type': 'bool',
@@ -80,7 +88,7 @@ SampSettingConf = ({'title': 'Channels Config',
                                                {'name': 'Ch11',
                                                 'tip': 'Ch11',
                                                 'type': 'bool',
-                                                'value': False},
+                                                'value': True},
                                                {'name': 'Ch12',
                                                 'tip': 'Ch12',
                                                 'type': 'bool',
@@ -108,11 +116,11 @@ SampSettingConf = ({'title': 'Channels Config',
                                   'children': ({'name': 'Col01',
                                                 'tip': 'Col01',
                                                 'type': 'bool',
-                                                'value': True},
+                                                'value': False},
                                                {'name': 'Col02',
                                                 'tip': 'Col02',
                                                 'type': 'bool',
-                                                'value': True},
+                                                'value': False},
                                                {'name': 'Col03',
                                                 'tip': 'Col03',
                                                 'type': 'bool',
@@ -144,7 +152,7 @@ SampSettingConf = ({'title': 'Channels Config',
                                                {'name': 'Col10',
                                                 'tip': 'Col10',
                                                 'type': 'bool',
-                                                'value': False},
+                                                'value': True},
                                                {'name': 'Col11',
                                                 'tip': 'Col11',
                                                 'type': 'bool',
@@ -152,7 +160,7 @@ SampSettingConf = ({'title': 'Channels Config',
                                                {'name': 'Col12',
                                                 'tip': 'Col12',
                                                 'type': 'bool',
-                                                'value': False},
+                                                'value': True},
                                                {'name': 'Col13',
                                                 'tip': 'Col13',
                                                 'type': 'bool',
@@ -255,11 +263,15 @@ class SampSetParam(pTypes.GroupParameter):
         self.RowChannels = self.ChsConfig.param('Channels')
         self.ColChannels = self.ChsConfig.param('DigColumns')
 
+        self.PCB = self.param('PCB')
+        self.Board = self.PCB.param('Board')
+
         # Init Settings
         self.on_Acq_Changed()
         self.on_Row_Changed()
         self.on_Col_Changed()
         self.on_Fs_Changed()
+        self.on_Config_Changed()
 
         print(self.children())
         # Signals
@@ -271,8 +283,6 @@ class SampSetParam(pTypes.GroupParameter):
         self.SampsCo.sigValueChanged.connect(self.on_Fs_Changed)
         self.nBlocks.sigValueChanged.connect(self.on_Fs_Changed)
         self.Vds.sigValueChanged.connect(self.on_Col_Changed)
-
-#        self.ChsConfig.sigTreeStateChanged.connect(self.GetConfig)
 
     def on_Acq_Changed(self):
         for p in self.ChsConfig.children():

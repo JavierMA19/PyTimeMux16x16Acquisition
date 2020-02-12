@@ -155,9 +155,11 @@ class MainWindow(Qt.QWidget):
             GenKwargs = self.SamplingPar.GetSampKwargs()
             GenChanKwargs = self.SamplingPar.GetChannelsConfigKwargs()
             AvgIndex = self.SamplingPar.SampSet.param('nAvg').value()
+            ConfigPCB = self.SamplingPar.
             self.threadAcq = AcqMod.DataAcquisitionThread(ChannelsConfigKW=GenChanKwargs,
                                                           SampKw=GenKwargs,
-                                                          AvgIndex=AvgIndex)
+                                                          AvgIndex=AvgIndex,
+                                                          )
 
             self.threadAcq.NewMuxData.connect(self.on_NewSample)
             self.threadAcq.start()
