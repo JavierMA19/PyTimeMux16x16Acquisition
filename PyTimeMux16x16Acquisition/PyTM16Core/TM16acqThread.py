@@ -9,7 +9,7 @@ Created on Wed Mar  6 12:25:45 2019
 from PyQt5 import Qt
 import pyqtgraph.parametertree.parameterTypes as pTypes
 import numpy as np
-import TM16acqCore as CoreMod
+import PyTM16Core.TM16acqCore as CoreMod
 import PyCont.FileModule as FileMod
 
 
@@ -275,7 +275,6 @@ class SampSetParam(pTypes.GroupParameter):
         self.on_Row_Changed()
         self.on_Col_Changed()
         self.on_Fs_Changed()
-        self.on_Config_Changed()
 
         print(self.children())
         # Signals
