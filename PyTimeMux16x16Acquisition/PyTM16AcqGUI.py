@@ -155,7 +155,7 @@ class MainWindow(Qt.QWidget):
             GenKwargs = self.SamplingPar.GetSampKwargs()
             GenChanKwargs = self.SamplingPar.GetChannelsConfigKwargs()
             AvgIndex = self.SamplingPar.SampSet.param('nAvg').value()
-            ConfigPCB = self.SamplingPar.
+            # PCB = self.SamplingPar.PCB.param('Board').value()
             self.threadAcq = AcqMod.DataAcquisitionThread(ChannelsConfigKW=GenChanKwargs,
                                                           SampKw=GenKwargs,
                                                           AvgIndex=AvgIndex,

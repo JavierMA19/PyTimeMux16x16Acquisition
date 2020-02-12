@@ -13,14 +13,15 @@ import TM16acqCore as CoreMod
 import PyCont.FileModule as FileMod
 
 
-SampSettingConf = ({'title': 'Select PCB',
-                    'name': 'PCB',
-                    'type': 'group',
-                    'childern':({'tittle': 'Selected Board',
-                                 'name': 'Board',
-                                 'type': 'list',
-                                 'values': ['MainBoard',
-                                            'MB4.1', ], },), },
+SampSettingConf = (
+                   # {'title': 'Select PCB',
+                   #  'name': 'PCB',
+                   #  'type': 'group',
+                   #  'childern':({'tittle': 'Selected Board',
+                   #               'name': 'Board',
+                   #               'type': 'list',
+                   #               'values': ['MainBoard',
+                   #                          'MB4.1', ], },), },
                    {'title': 'Channels Config',
                     'name': 'ChsConfig',
                     'type': 'group',
@@ -42,6 +43,11 @@ SampSettingConf = ({'title': 'Select PCB',
                                   'type': 'float',
                                   'value': 1e6,
                                   'siPrefix': True, },
+                                 {'tittle': 'Selected Board',
+                                  'name': 'Board',
+                                  'type': 'list',
+                                  'values': ['MainBoard',
+                                             'MB4.1', ], },
                                  {'tittle': 'Row Channels',
                                   'name': 'Channels',
                                   'type': 'group',
@@ -263,8 +269,6 @@ class SampSetParam(pTypes.GroupParameter):
         self.RowChannels = self.ChsConfig.param('Channels')
         self.ColChannels = self.ChsConfig.param('DigColumns')
 
-        self.PCB = self.param('PCB')
-        self.Board = self.PCB.param('Board')
 
         # Init Settings
         self.on_Acq_Changed()
@@ -333,6 +337,9 @@ class SampSetParam(pTypes.GroupParameter):
     def GetChannelsNames(self):
         Ind = 0
         ChannelNames = {}
+        
+        # self.Board = self.PCB.param('Board').value()
+        # print('Board', self.Board)
 
         if self.ChsConfig.param('AcqDC').value():
             for Row in self.Rows:
@@ -363,7 +370,7 @@ class SampSetParam(pTypes.GroupParameter):
                 ChanKwargs[p.name()] = self.Columns
             else:
                 ChanKwargs[p.name()] = p.value()
-
+            
         return ChanKwargs
 
 ###############################################################################
