@@ -246,7 +246,7 @@ class ChannelsConfig():
         # Sort by aianalog input
         (samps, inch) = data.shape
         aiData = np.zeros((samps, len(SortDict)))
-        for chn, inds in sorted(SortDict.iteritems()):
+        for chn, inds in sorted(SortDict.items()):
             aiData[:, inds[1]] = data[:, inds[0]]
 
         # Sort by digital columns
