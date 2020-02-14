@@ -21,11 +21,9 @@ import os
 import sys
 from pyqtgraph.parametertree import Parameter, ParameterTree
 
-import PyCont.FileModule as FileMod
-import PyCont.PlotModule as PltMod
+import PyqtTools.FileModule as FileMod
+import PyqtTools.PlotModule as PltMod
 
-#import PyTMCore.FileModule as FileMod
-#import PyTMCore.PlotModule as PltMod
 import PyTM16Core.TM16acqThread as AcqMod
 
 
@@ -86,15 +84,6 @@ class MainWindow(Qt.QWidget):
                                                            name='Configuration File')
         self.Parameters.addChild(self.ConfigParameters)
 
-#        self.FileParams = Parameter.create(name='File Params',
-#                                           type='group',
-#                                           children=self.FileParameters)
-#        self.pars.addChild(self.FileParams)
-#        self.FileParams.param('Save File').sigActivated.connect(self.FileDialog)
-#
-#        self.GenChannelsViewParams(nChannels=self.DataGenConf.NChannels.value(),
-#                                   nWindows=1)
-
     def on_pars_changed(self, param, changes):
         print("tree changes:")
         for param, change, data in changes:
@@ -144,9 +133,6 @@ class MainWindow(Qt.QWidget):
     def on_NewConf(self):
         self.Parameters.sigTreeStateChanged.disconnect()
         self.PlotParams.SetChannels(self.SamplingPar.GetChannelsNames())
-#        ch = {}
-#        for i, r in enumerate(sorted(self.SamplingPar.Rows)):
-#            ch[r] = i
         self.RawPlotParams.SetChannels(self.SamplingPar.GetRowNames())
         self.Parameters.sigTreeStateChanged.connect(self.on_pars_changed)
 
@@ -155,7 +141,6 @@ class MainWindow(Qt.QWidget):
             GenKwargs = self.SamplingPar.GetSampKwargs()
             GenChanKwargs = self.SamplingPar.GetChannelsConfigKwargs()
             AvgIndex = self.SamplingPar.SampSet.param('nAvg').value()
-            # PCB = self.SamplingPar.PCB.param('Board').value()
             self.threadAcq = AcqMod.DataAcquisitionThread(ChannelsConfigKW=GenChanKwargs,
                                                           SampKw=GenKwargs,
                                                           AvgIndex=AvgIndex,
@@ -166,7 +151,6 @@ class MainWindow(Qt.QWidget):
 
             PlotterKwargs = self.PlotParams.GetParams()
 
-#            FileName = self.Parameters.param('File Path').value()
             FileName = self.FileParameters.FilePath()
             print('Filename', FileName)
             if FileName == '':
@@ -176,20 +160,20 @@ class MainWindow(Qt.QWidget):
                     print('Remove File')
                     os.remove(FileName)
                 MaxSize = self.FileParameters.param('MaxSize').value()
-#                MaxSize = self.Parameters.param('MaxSize').value()
                 self.threadSave = FileMod.DataSavingThread(FileName=FileName,
                                                            nChannels=PlotterKwargs['nChannels'],
                                                            MaxSize=MaxSize)
                 self.threadSave.start()
-            self.threadPlotter = PltMod.Plotter(**PlotterKwargs)
-            self.threadPlotter.start()
 
-            RawPlotterKwargs = self.RawPlotParams.GetParams()
-#            print(PlotterKwargs)
-            self.threadPlotterRaw = PltMod.Plotter(ShowTime=False,
-                                                   **RawPlotterKwargs)
-            self.threadPlotterRaw.start()
+            if self.PlotParams.param('PlotEnable').value():
+                self.threadPlotter = PltMod.Plotter(**PlotterKwargs)
+                self.threadPlotter.start()
 
+            if self.RawPlotParams.param('PlotEnable').value():
+                RawPlotterKwargs = self.RawPlotParams.GetParams()
+                self.threadPlotterRaw = PltMod.Plotter(ShowTime=False,
+                                                       **RawPlotterKwargs)
+                self.threadPlotterRaw.start()
             self.threadPSDPlotter = PltMod.PSDPlotter(ChannelConf=PlotterKwargs['ChannelConf'],
                                                       nChannels=PlotterKwargs['nChannels'],
                                                       **self.PSDParams.GetParams())
@@ -205,9 +189,9 @@ class MainWindow(Qt.QWidget):
             if self.threadSave is not None:
                 self.threadSave.terminate()
                 self.threadSave = None
-
-            self.threadPlotter.terminate()
-            self.threadPlotter = None
+            if self.PlotParams.param('PlotEnable').value():
+                self.threadPlotter.terminate()
+                self.threadPlotter = None
 
             self.btnAcq.setText("Start Gen")
 
@@ -219,8 +203,10 @@ class MainWindow(Qt.QWidget):
         print(self.threadAcq.aiData.shape)
         if self.threadSave is not None:
             self.threadSave.AddData(self.threadAcq.OutData.transpose())
-        self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
-        self.threadPlotterRaw.AddData(self.threadAcq.aiData.transpose())
+        if self.PlotParams.param('PlotEnable').value():
+            self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
+        if self.RawPlotParams.param('PlotEnable').value():
+            self.threadPlotterRaw.AddData(self.threadAcq.aiData.transpose())
         self.threadPSDPlotter.AddData(self.threadAcq.OutData.transpose())
         print('Sample time', Ts, np.mean(self.Tss))
 

@@ -5,8 +5,7 @@ Created on Tue Mar  5 14:13:45 2019
 
 @author: aguimera
 """
-import PyCont.DaqInterface as DaqInt
-#import PyTMCore.DaqInterface as DaqInt
+import PyqtTools.DaqInterface as DaqInt
 import numpy as np
 
 
@@ -31,23 +30,23 @@ MainBoard = ({'Ch01': ('ai0', 'ai8'),
               'Ch15': ('ai22', 'ai30'),
               'Ch16': ('ai23', 'ai31')},
 
-            {'Col05': ('line0', 'line1'),
-             'Col06': ('line2', 'line3'),
-             'Col08': ('line4', 'line5'),
-             'Col07': ('line6', 'line7'),
-             'Col02': ('line8', 'line9'),
-             'Col04': ('line10', 'line11'),
-             'Col01': ('line12', 'line13'),
-             'Col03': ('line14', 'line15'),
-             'Col16': ('line16', 'line17'),
-             'Col15': ('line18', 'line19'),
-             'Col13': ('line20', 'line21'),
-             'Col14': ('line22', 'line23'),
-             'Col11': ('line24', 'line25'),
-             'Col09': ('line26', 'line27'),
-             'Col12': ('line28', 'line29'),
-             'Col10': ('line30', 'line31'),
-             })
+             {'Col05': ('line0', 'line1'),
+              'Col06': ('line2', 'line3'),
+              'Col08': ('line4', 'line5'),
+              'Col07': ('line6', 'line7'),
+              'Col02': ('line8', 'line9'),
+              'Col04': ('line10', 'line11'),
+              'Col01': ('line12', 'line13'),
+              'Col03': ('line14', 'line15'),
+              'Col16': ('line16', 'line17'),
+              'Col15': ('line18', 'line19'),
+              'Col13': ('line20', 'line21'),
+              'Col14': ('line22', 'line23'),
+              'Col11': ('line24', 'line25'),
+              'Col09': ('line26', 'line27'),
+              'Col12': ('line28', 'line29'),
+              'Col10': ('line30', 'line31'),
+              })
 
 
 ############################################ MB4.1
@@ -67,7 +66,7 @@ MB41 = ({'Ch09': ('ai0', 'ai8'),
          'Ch06': ('ai21', 'ai29'),
          'Ch07': ('ai22', 'ai30'),
          'Ch08': ('ai23', 'ai31'),
-              },
+         },
 
         {'Col10': ('line0', 'line1'),
          'Col09': ('line2', 'line3'),
@@ -85,9 +84,8 @@ MB41 = ({'Ch09': ('ai0', 'ai8'),
          'Col08': ('line26', 'line27'),
          'Col05': ('line28', 'line29'),
          'Col06': ('line30', 'line31'),
-             },
+         },
         )
-        
 
 
 ##############################################################################
