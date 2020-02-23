@@ -254,7 +254,7 @@ class ChannelsConfig():
 
     def Stop(self):
         print('Stopppp')
-        self.SetBias(Vgs=0, Vds=0)
+        self.SetBias(Vgs=0, Vds=0, AO2=0, AO3=0)
         self.AnalogInputs.StopContData()
         if self.DigitalOutputs is not None:
             print('Clear Digital')
