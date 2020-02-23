@@ -117,18 +117,21 @@ class ChannelsConfig():
 
         self.DigitalOutputs = DaqInt.WriteDigital(Channels=DOChannels)
 
-    def _InitAnalogOutputs(self, ChVds, ChVs):
+    def _InitAnalogOutputs(self, ChVds, ChVs, ChAO2, ChAO3):
         print('ChVds ->', ChVds)
         print('ChVs ->', ChVs)
         self.VsOut = DaqInt.WriteAnalog((ChVs,))
         self.VdsOut = DaqInt.WriteAnalog((ChVds,))
+        self.AO2Out = DaqInt.WriteAnalog((ChAO2,))
+        self.AO3Out = DaqInt.WriteAnalog((ChAO3,))
 
     def __init__(self, Channels, DigColumns,
                  AcqDC=True, AcqAC=True,
                  ChVds='ao0', ChVs='ao1',
+                 ChAO2='ao2', ChAO3='ao3',
                  ACGain=1.1e5, DCGain=10e3):
         print('InitChannels')
-        self._InitAnalogOutputs(ChVds=ChVds, ChVs=ChVs)
+        self._InitAnalogOutputs(ChVds=ChVds, ChVs=ChVs, ChAO2=ChAO2, ChAO3=ChAO3)
 
         self.ChNamesList = sorted(Channels)
         print(self.ChNamesList)
@@ -155,7 +158,7 @@ class ChannelsConfig():
 
     def StartAcquisition(self, Fs, nSampsCo, nBlocks, Vgs, Vds, **kwargs):
         print('StartAcquisition')
-        self.SetBias(Vgs=Vgs, Vds=Vds)
+        self.SetBias(Vgs=Vgs, Vds=Vds, AO2=4-Vgs, AO3=-4-Vgs)
         self.SetDigitalOutputs(nSampsCo=nSampsCo)
         print('DSig set')
         self.nBlocks = nBlocks
@@ -166,10 +169,12 @@ class ChannelsConfig():
         self.AnalogInputs.ReadContData(Fs=Fs,
                                        EverySamps=EveryN)
 
-    def SetBias(self, Vgs, Vds):
+    def SetBias(self, Vgs, Vds, AO2, AO3):
         print('ChannelsConfig SetBias Vgs ->', Vgs, 'Vds ->', Vds)
         self.VdsOut.SetVal(Vds)
         self.VsOut.SetVal(-Vgs)
+        self.AO2Out.SetVal(AO2)
+        self.AO3Out.SetVal(AO3)
         self.BiasVd = Vds-Vgs
         self.Vgs = Vgs
         self.Vds = Vds
