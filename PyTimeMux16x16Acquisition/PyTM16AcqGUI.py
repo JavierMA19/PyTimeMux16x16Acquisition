@@ -216,7 +216,7 @@ def main():
     import pkg_resources
 
     # Add version option
-    __version__ = pkg_resources.require("PyCont")[0].version
+    __version__ = pkg_resources.require("PyqtTools")[0].version
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version',
                         version='%(prog)s {version}'.format(

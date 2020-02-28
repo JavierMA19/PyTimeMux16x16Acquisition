@@ -140,7 +140,8 @@ class ChannelsConfig():
         print(self.DigColumns)
         DOChannels = []
 
-        for digc in sorted(self.doColumns):
+        for digc in sorted(self.DigColumns):
+        # for digc in sorted(self.doColumns):
             print(digc)
             DOChannels.append(self.doColumns[digc][0])
 #            DOChannels.append(doColumns[digc][0])
