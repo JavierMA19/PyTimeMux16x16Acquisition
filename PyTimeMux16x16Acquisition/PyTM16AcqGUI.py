@@ -33,6 +33,12 @@ class MainWindow(Qt.QWidget):
     def __init__(self):
         super(MainWindow, self).__init__()
 
+        self.threadAcq = None
+        self.threadSave = None
+        self.threadPlotter = None
+        self.threadPSDPlotter = None
+        self.threadPlotterRaw = None
+
         layout = Qt.QVBoxLayout(self)
 
         self.btnAcq = Qt.QPushButton("Start Acq!")
@@ -44,21 +50,18 @@ class MainWindow(Qt.QWidget):
                                            children=(self.SamplingPar,))
 
         self.SamplingPar.NewConf.connect(self.on_NewConf)
+        self.SamplingPar.Fs.sigValueChanged.connect(self.on_FsChanged)
+        self.SamplingPar.FsxCh.sigValueChanged.connect(self.on_FsxChChanged)
 
         self.PlotParams = PltMod.PlotterParameters(name='Plot options')
-        self.PlotParams.SetChannels(self.SamplingPar.GetChannelsNames())
-        self.PlotParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
-
         self.Parameters.addChild(self.PlotParams)
 
         self.RawPlotParams = PltMod.PlotterParameters(name='Raw Plot')
-        self.RawPlotParams.SetChannels(self.SamplingPar.GetRowNames())
-        self.RawPlotParams.param('Fs').setValue(self.SamplingPar.Fs.value())
-
         self.Parameters.addChild(self.RawPlotParams)
 
         self.PSDParams = PltMod.PSDParameters(name='PSD Options')
-        self.PSDParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
+        self.PSDParams.NewConf.connect(self.on_NewPSDConf)
+
         self.Parameters.addChild(self.PSDParams)
         self.Parameters.sigTreeStateChanged.connect(self.on_pars_changed)
 
@@ -72,9 +75,6 @@ class MainWindow(Qt.QWidget):
         self.setWindowTitle('MainWindow')
 
         self.btnAcq.clicked.connect(self.on_btnStart)
-        self.threadAcq = None
-        self.threadSave = None
-        self.threadPlotter = None
 
         self.FileParameters = FileMod.SaveFileParameters(QTparent=self,
                                                          name='Record File')
@@ -83,6 +83,17 @@ class MainWindow(Qt.QWidget):
         self.ConfigParameters = FileMod.SaveSateParameters(QTparent=self,
                                                            name='Configuration File')
         self.Parameters.addChild(self.ConfigParameters)
+        self.on_FsChanged()
+        self.on_FsxChChanged()
+        self.on_NewConf()
+
+    def on_FsChanged(self):
+        self.RawPlotParams.param('Fs').setValue(self.SamplingPar.Fs.value())
+
+    def on_FsxChChanged(self):
+        print('FSXCH', self.SamplingPar.FsxCh.value())
+        self.PlotParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
+        self.PSDParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
 
     def on_pars_changed(self, param, changes):
         print("tree changes:")
@@ -96,13 +107,6 @@ class MainWindow(Qt.QWidget):
         print('  change:    %s' % change)
         print('  data:      %s' % str(data))
         print('  ----------')
-
-        if childName == 'SampSettingConf.Sampling Settings.FsxCh':
-            self.PlotParams.param('Fs').setValue(data)
-            self.PSDParams.param('Fs').setValue(data)
-
-        if childName == 'SampSettingConf.Sampling Settings.Fs':
-            self.RawPlotParams.param('Fs').setValue(data)
 
         if childName == 'SampSettingConf.Sampling Settings.Vgs':
             if self.threadAcq:
@@ -129,6 +133,12 @@ class MainWindow(Qt.QWidget):
         if childName == 'Raw Plot.RefreshTime':
             if self.threadPlotterRaw is not None:
                 self.threadPlotterRaw.SetRefreshTime(data)
+
+    def on_NewPSDConf(self):
+        if self.threadPSDPlotter is not None:
+            nFFT = self.PSDParams.param('nFFT').value()
+            nAvg = self.PSDParams.param('nAvg').value()
+            self.threadPSDPlotter.InitBuffer(nFFT=nFFT, nAvg=nAvg)
 
     def on_NewConf(self):
         self.Parameters.sigTreeStateChanged.disconnect()
