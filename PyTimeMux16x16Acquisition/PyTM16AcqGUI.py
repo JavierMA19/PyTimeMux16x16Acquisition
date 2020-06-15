@@ -24,6 +24,12 @@ from pyqtgraph.parametertree import Parameter, ParameterTree
 import PyqtTools.FileModule as FileMod
 import PyqtTools.PlotModule as PltMod
 
+from PyqtTools.PlotModule import Plotter as TimePlt
+from PyqtTools.PlotModule import PlotterParameters as TimePltPars
+from PyqtTools.PlotModule import PSDPlotter as PSDPlt
+from PyqtTools.PlotModule import PSDParameters as PSDPltPars
+
+
 import PyTM16Core.TM16acqThread as AcqMod
 
 
@@ -44,6 +50,9 @@ class MainWindow(Qt.QWidget):
         self.btnAcq = Qt.QPushButton("Start Acq!")
         layout.addWidget(self.btnAcq)
 
+        self.ResetGraph = Qt.QPushButton("Reset Graphics")
+        layout.addWidget(self.ResetGraph)
+
         self.SamplingPar = AcqMod.SampSetParam(name='SampSettingConf')
         self.Parameters = Parameter.create(name='App Parameters',
                                            type='group',
@@ -53,17 +62,27 @@ class MainWindow(Qt.QWidget):
         self.SamplingPar.Fs.sigValueChanged.connect(self.on_FsChanged)
         self.SamplingPar.FsxCh.sigValueChanged.connect(self.on_FsxChChanged)
 
-        self.PlotParams = PltMod.PlotterParameters(name='Plot options')
+        # self.PlotParams = PltMod.PlotterParameters(name='Plot options')
+        # self.Parameters.addChild(self.PlotParams)
+        self.PlotParams = TimePltPars(name='TimePlt',
+                              title='Time Plot Options')
+
+        self.PlotParams.NewConf.connect(self.on_NewPlotConf)
         self.Parameters.addChild(self.PlotParams)
 
-        self.RawPlotParams = PltMod.PlotterParameters(name='Raw Plot')
+        self.RawPlotParams = TimePltPars(name='RawPlot')
         self.Parameters.addChild(self.RawPlotParams)
 
-        self.PSDParams = PltMod.PSDParameters(name='PSD Options')
-        self.PSDParams.NewConf.connect(self.on_NewPSDConf)
+        # self.PSDParams = PltMod.PSDParameters(name='PSD Options')
+        # self.PSDParams.NewConf.connect(self.on_NewPSDConf)
+        # self.Parameters.addChild(self.PSDParams)
+        self.PsdPlotParams = PSDPltPars(name='PSDPlt',
+                                        title='PSD Plot Options')
+        self.Parameters.addChild(self.PsdPlotParams)
 
-        self.Parameters.addChild(self.PSDParams)
-        self.Parameters.sigTreeStateChanged.connect(self.on_pars_changed)
+        self.PsdPlotParams.NewConf.connect(self.on_NewPSDConf)
+
+        # self.Parameters.sigTreeStateChanged.connect(self.on_pars_changed)
 
         self.treepar = ParameterTree()
         self.treepar.setParameters(self.Parameters, showTop=False)
@@ -75,6 +94,7 @@ class MainWindow(Qt.QWidget):
         self.setWindowTitle('MainWindow')
 
         self.btnAcq.clicked.connect(self.on_btnStart)
+        self.ResetGraph.clicked.connect(self.on_ResetGraph)
 
         self.FileParameters = FileMod.SaveFileParameters(QTparent=self,
                                                          name='Record File')
@@ -93,7 +113,7 @@ class MainWindow(Qt.QWidget):
     def on_FsxChChanged(self):
         print('FSXCH', self.SamplingPar.FsxCh.value())
         self.PlotParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
-        self.PSDParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
+        self.PsdPlotParams.param('Fs').setValue(self.SamplingPar.FsxCh.value())
 
     def on_pars_changed(self, param, changes):
         print("tree changes:")
@@ -118,33 +138,73 @@ class MainWindow(Qt.QWidget):
                 Vgs = self.threadAcq.DaqInterface.Vgs
                 self.threadAcq.DaqInterface.SetBias(Vgs=Vgs, Vds=data)
 
-        if childName == 'Plot options.RefreshTime':
-            if self.threadPlotter is not None:
-                self.threadPlotter.SetRefreshTime(data)
+        # if childName == 'Plot options.RefreshTime':
+        #     if self.threadPlotter is not None:
+        #         self.threadPlotter.SetRefreshTime(data)
 
-        if childName == 'Plot options.ViewTime':
-            if self.threadPlotter is not None:
-                self.threadPlotter.SetViewTime(data)
+        # if childName == 'Plot options.ViewTime':
+        #     if self.threadPlotter is not None:
+        #         self.threadPlotter.SetViewTime(data)
 
-        if childName == 'Raw Plot.ViewTime':
-            if self.threadPlotterRaw is not None:
-                self.threadPlotterRaw.SetViewTime(data)
+        # if childName == 'Raw Plot.ViewTime':
+        #     if self.threadPlotterRaw is not None:
+        #         self.threadPlotterRaw.SetViewTime(data)
 
-        if childName == 'Raw Plot.RefreshTime':
-            if self.threadPlotterRaw is not None:
-                self.threadPlotterRaw.SetRefreshTime(data)
+        # if childName == 'Raw Plot.RefreshTime':
+        #     if self.threadPlotterRaw is not None:
+        #         self.threadPlotterRaw.SetRefreshTime(data)
 
     def on_NewPSDConf(self):
         if self.threadPSDPlotter is not None:
-            nFFT = self.PSDParams.param('nFFT').value()
-            nAvg = self.PSDParams.param('nAvg').value()
+            nFFT = self.PsdPlotParams.param('nFFT').value()
+            nAvg = self.PsdPlotParams.param('nAvg').value()
             self.threadPSDPlotter.InitBuffer(nFFT=nFFT, nAvg=nAvg)
 
     def on_NewConf(self):
-        self.Parameters.sigTreeStateChanged.disconnect()
         self.PlotParams.SetChannels(self.SamplingPar.GetChannelsNames())
         self.RawPlotParams.SetChannels(self.SamplingPar.GetRowNames())
-        self.Parameters.sigTreeStateChanged.connect(self.on_pars_changed)
+        self.PsdPlotParams.ChannelConf = self.PlotParams.ChannelConf
+        nChannels = self.PlotParams.param('nChannels').value()
+        self.PsdPlotParams.param('nChannels').setValue(nChannels)
+
+    def on_NewPlotConf(self):
+        if self.threadPlotter is not None:
+            ViewTime = self.PlotParams.param('ViewTime').value()
+            self.threadPlotter.SetViewTime(ViewTime)        
+            RefreshTime = self.PlotParams.param('RefreshTime').value()
+            self.threadPlotter.SetRefreshTime(RefreshTime)        
+
+    def on_ResetGraph(self):
+        if self.threadAcq is None:
+            return
+
+        # Plot and PSD threads are stopped
+        if self.threadPlotter is not None:
+            self.threadPlotter.stop()
+            self.threadPlotter = None
+
+        if self.threadPSDPlotter is not None:
+            self.threadPSDPlotter.stop()
+            self.threadPSDPlotter = None
+
+        if self.threadPlotterRaw is not None:
+            self.threadPlotterRaw.stop()
+            self.threadPlotterRaw = None
+
+        if self.PlotParams.param('PlotEnable').value():
+            Pltkw = self.PlotParams.GetParams()
+            self.threadPlotter = TimePlt(**Pltkw)
+            self.threadPlotter.start()
+
+        if self.PsdPlotParams.param('PlotEnable').value():
+            PSDKwargs = self.PsdPlotParams.GetParams()
+            self.threadPSDPlotter = PSDPlt(**PSDKwargs)
+            self.threadPSDPlotter.start()
+
+        if self.RawPlotParams.param('PlotEnable').value():
+            RwPltkw = self.RawPlotParams.GetParams()
+            self.threadPlotterRaw = TimePlt(**RwPltkw)
+            self.threadPlotterRaw.start()
 
     def on_btnStart(self):
         if self.threadAcq is None:
@@ -175,19 +235,7 @@ class MainWindow(Qt.QWidget):
                                                            MaxSize=MaxSize)
                 self.threadSave.start()
 
-            if self.PlotParams.param('PlotEnable').value():
-                self.threadPlotter = PltMod.Plotter(**PlotterKwargs)
-                self.threadPlotter.start()
-
-            if self.RawPlotParams.param('PlotEnable').value():
-                RawPlotterKwargs = self.RawPlotParams.GetParams()
-                self.threadPlotterRaw = PltMod.Plotter(ShowTime=False,
-                                                       **RawPlotterKwargs)
-                self.threadPlotterRaw.start()
-            self.threadPSDPlotter = PltMod.PSDPlotter(ChannelConf=PlotterKwargs['ChannelConf'],
-                                                      nChannels=PlotterKwargs['nChannels'],
-                                                      **self.PSDParams.GetParams())
-            self.threadPSDPlotter.start()
+            self.on_ResetGraph()
 
             self.btnAcq.setText("Stop Gen")
             self.OldTime = time.time()
@@ -202,6 +250,12 @@ class MainWindow(Qt.QWidget):
             if self.PlotParams.param('PlotEnable').value():
                 self.threadPlotter.terminate()
                 self.threadPlotter = None
+            if self.threadPSDPlotter is not None:
+                self.threadPSDPlotter.stop()
+                self.threadPSDPlotter = None
+            if self.threadPlotterRaw is not None:
+                self.threadPlotterRaw.stop()
+                self.threadPlotterRaw = None
 
             self.btnAcq.setText("Start Gen")
 
@@ -210,16 +264,18 @@ class MainWindow(Qt.QWidget):
         Ts = time.time() - self.OldTime
         self.Tss.append(Ts)
         self.OldTime = time.time()
-        print(self.threadAcq.aiData.shape)
+
         if self.threadSave is not None:
             self.threadSave.AddData(self.threadAcq.OutData.transpose())
-        if self.PlotParams.param('PlotEnable').value():
-            self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
-        if self.RawPlotParams.param('PlotEnable').value():
-            self.threadPlotterRaw.AddData(self.threadAcq.aiData.transpose())
-        self.threadPSDPlotter.AddData(self.threadAcq.OutData.transpose())
-        print('Sample time', Ts, np.mean(self.Tss))
 
+        if self.threadPlotter is not None:
+            self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
+
+        if self.threadPSDPlotter is not None:
+            self.threadPSDPlotter.AddData(self.threadAcq.OutData.transpose())
+
+        if self.threadPlotterRaw is not None:
+            self.threadPlotterRaw.AddData(self.threadAcq.aiData.transpose())
 
 def main():
     import argparse

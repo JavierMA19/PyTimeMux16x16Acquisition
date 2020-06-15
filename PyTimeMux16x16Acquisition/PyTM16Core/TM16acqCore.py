@@ -265,7 +265,6 @@ class ChannelsConfig():
         return aiData, MuxData
 
     def EveryNEventCallBack(self, Data):
-        print('EveryNEventCallBack')
         _DataEveryNEvent = self.DataEveryNEvent
 
         if _DataEveryNEvent is not None:
