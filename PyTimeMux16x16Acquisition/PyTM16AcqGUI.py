@@ -220,7 +220,7 @@ class MainWindow(Qt.QWidget):
             self.threadAcq.start()
 
             PlotterKwargs = self.PlotParams.GetParams()
-
+            PlotterRawKwargs = self.RawPlotParams.GetParams()
             FileName = self.FileParameters.FilePath()
             print('Filename', FileName)
             if FileName == '':
@@ -231,7 +231,7 @@ class MainWindow(Qt.QWidget):
                     os.remove(FileName)
                 MaxSize = self.FileParameters.param('MaxSize').value()
                 self.threadSave = FileMod.DataSavingThread(FileName=FileName,
-                                                           nChannels=PlotterKwargs['nChannels'],
+                                                           nChannels=PlotterRawKwargs['nChannels'],
                                                            MaxSize=MaxSize)
                 self.threadSave.start()
 
@@ -266,7 +266,7 @@ class MainWindow(Qt.QWidget):
         self.OldTime = time.time()
 
         if self.threadSave is not None:
-            self.threadSave.AddData(self.threadAcq.OutData.transpose())
+            self.threadSave.AddData(self.threadAcq.aiData.transpose())
 
         if self.threadPlotter is not None:
             self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
