@@ -176,7 +176,7 @@ class MainWindow(Qt.QWidget):
                 MaxSize = self.FileParameters.param('MaxSize').value()
 #                MaxSize = self.Parameters.param('MaxSize').value()
                 self.threadSave = FileMod.DataSavingThread(FileName=FileName,
-                                                           nChannels=PlotterKwargs['nChannels'],
+                                                           nChannels=RawPlotterKwargs['nChannels'],
                                                            MaxSize=MaxSize)
                 self.threadSave.start()
             self.threadPlotter = PltMod.Plotter(**PlotterKwargs)
@@ -216,7 +216,7 @@ class MainWindow(Qt.QWidget):
         self.OldTime = time.time()
         print(self.threadAcq.aiData.shape)
         if self.threadSave is not None:
-            self.threadSave.AddData(self.threadAcq.OutData.transpose())
+            self.threadSave.AddData(self.threadAcq.aiData.transpose())
         self.threadPlotter.AddData(self.threadAcq.OutData.transpose())
         self.threadPlotterRaw.AddData(self.threadAcq.aiData.transpose())
         self.threadPSDPlotter.AddData(self.threadAcq.OutData.transpose())
